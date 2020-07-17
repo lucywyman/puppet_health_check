@@ -20,17 +20,15 @@ plan phc::fix_targets(
       $t = get_target($result.target)
       $t.set_resources($result.value['_output'])
 
-      # ...what should this title be?
-      $noop = $t.lookup_resource('puppetnoop', 'noop')
-      $noop.add_event({'noop_health_check' => { 'success' => true } })
+      $noop = $t.resource('puppetnoop', 'noop')
       $noop.set_desired_state({ 'noop' => $target_noop_state })
 
-      $runinterval = $t.lookup_resource('puppetruninterval', 'runinterval')
-      $runinterval.add_event({'health_check' => { 'success' => true }})
+      $runinterval = $t.resource('puppetruninterval', 'runinterval')
       $runinterval.set_desired_state({ 'runinterval' => $target_runinterval })
     }
 
-    $service_state = run_task('phc::service_health', $targets, '_catch_errors' => true)
+    #$service_state = run_task('phc::service_health', $targets, '_catch_errors' => true)
+    $service_resource = $t.get_resources(Service['puppet'])
     unless $service_state.ok {
         out::message("Service health check failed for ${$service_state.error_set.targets}")
     }
